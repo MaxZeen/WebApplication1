@@ -1,0 +1,168 @@
+﻿
+@{
+    ViewBag.Title = "Angularjs";
+}
+@section headerscripts
+{
+    <script src="~/Scripts/angular.min.js"></script>
+    <script type="text/javascript">
+        var app = angular.module('myApp', []);
+        app.controller('PhoneListCtrl', function ($scope) {
+            $scope.phones = [
+             {
+                 "name": "Nexus S",
+                 "snippet": "Fast just got faster with Nexus S."
+             },
+             {
+                 "name": "Motorola XOOM™ with Wi-Fi",
+                 "snippet": "The Next, Next Generation tablet."
+             },
+             {
+                 "name": "MOTOROLA XOOM™",
+                 "snippet": "The Next, Next Generation tablet."
+             }
+            ];
+        });
+        app.controller('LicensensCtrl', function ($scope, $http) {
+           // var arr=[];
+            $http.get("GetLicensensList")
+            .success(function (response) {
+                //加载数据 后台toarry（）
+                $scope.LicensensList = response.data;
+                //$scope.LicensensList = JSON.stringify(response.data);
+                //angular.forEach(response.data, function (item) {
+                //    item.ActivateDate = date(item.ActivateDate);
+                //    arr.push(item);
+                //});
+                //$scope.LicensensList = arr;
+
+                //分页----------------------------
+                $scope.currentPage = 0;
+                $scope.pageSize = 11;
+                $scope.numberOfPages = function () {
+                    return Math.ceil($scope.LicensensList.length / $scope.pageSize);
+                };
+
+                //
+               
+                //$scope.getsearch = function (column) {
+                //    return column = 'search.' +column;
+                //};
+                //排序
+                $scope.head = {
+                    CustomerCode: "CustomerCode",
+                    MenuID: "MenuID",
+                    ActivateDate: "ActivateDate"
+                };
+
+                $scope.sort = {
+                    column: 'CustomerCode',
+                    descending: false
+                };
+
+                $scope.selectedCls = function(column) {
+                    return column == $scope.sort.column && 'sort-' + $scope.sort.descending;
+                };
+    
+                $scope.changeSorting = function(column) {
+                    var sort = $scope.sort;
+                    if (sort.column == column) {
+                        sort.descending = !sort.descending;
+                    } else {
+                        sort.column = column;
+                        sort.descending = false;
+                    }
+                };
+              
+            });
+
+            
+        });
+
+        app.filter("mydate", function () {
+            return function (x) {
+                return new Date(parseInt(x.substr(6)));
+            };
+        });
+       
+        app.filter('startFrom', function() {
+            return function (input, start) {
+               if (!input || !input.length) { return; }
+                start = +start; //parse to int
+                return input.slice(start);
+            }
+        });  
+  
+    </script>
+}
+<h2>Angularjs</h2>
+<div ng-app="myApp">
+    <div class="col-md-12 col-lg-12 col-xs-12"> 1+2={{1+2}}  hello {{'yet'+'!'}}</div>
+    <div class="col-md-6 col-lg-6 col-xs-12" ng-repeat="i in [1,2,3,4,5,6,7,8,9,0]">
+        @*ng-show="i==2"*@
+        <div ng-switch="i">
+            <div ng-switch-when="1">{{i}}</div>
+        </div>
+        <div ng-if="i==2">{{2}}</div>
+    </div>
+
+    <div class="row col-md-12 col-lg-12 col-xs-12 table-responsive" ng-controller="PhoneListCtrl">
+        <table class="table table-hover table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>name</th>
+                    <th>snippet</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="phone in phones">
+                    <td>{{phone.name}}</td>
+                    <td>{{phone.snippet}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="form-group">
+        <input ng-model="query" class="col-lg-1 form-control" />
+        @*<input ng-model="query.CustomerCode" class="col-lg-1 form-control" />
+            <input ng-model="query.MenuID" class="col-lg-1 form-control" />*@
+    </div>
+    <div class="row col-md-12 col-lg-12 col-xs-12 table-responsive" ng-controller="LicensensCtrl">
+        <table class="table table-hover table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th ng-repeat="(i,th) in head">
+                        <a href="" ng-class="selectedCls(i)" ng-click="changeSorting(i)">{{th}}</a>
+                        @*<input ng-model="getsearch(i)" class="form-control" />*@
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="item in LicensensList | orderBy:sort.column:sort.descending | startFrom:currentPage*pageSize | limitTo:pageSize | filter:query">
+                    @* orderBy:sort.column*@
+                    <td>{{item.CustomerCode}}</td>
+                    <td>{{item.MenuID}}</td>
+                    <td>{{item.ActivateDate | mydate | date: 'yyyy-MM-dd HH:mm'}}</td>
+                </tr>
+            </tbody>
+        </table>
+        <button href="" ng-click="currentPage=0">
+            Frist
+        </button>
+        <button href="" ng-disabled="currentPage == 0" ng-click="currentPage=currentPage-1">
+            Previous
+        </button>
+        {{currentPage+1}}/{{numberOfPages()}}
+        <button href="" ng-disabled="currentPage >= LicensensList.length/pageSize - 1" ng-click="currentPage=currentPage+1">
+            Next
+        </button>
+        <button href="" ng-click="currentPage=numberOfPages()-1">
+            Last
+        </button>
+    </div>
+    
+</div>
+@section scripts
+{
+
+}
