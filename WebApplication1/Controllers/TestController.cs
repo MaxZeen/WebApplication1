@@ -40,9 +40,10 @@ namespace WebApplication1.Views.Test
 
         public ActionResult RedisStudy()
         {
-     
 
-            var client = new RedisClient("127.0.0.1", 6379);
+
+            //var client = new RedisClient("127.0.0.1", 6379);
+             var client = new RedisClient("10.55.160.168", 6379);
             client.Set<int>("pwd", 1111);
             int pwd = client.Get<int>("pwd");
 
